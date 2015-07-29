@@ -1,48 +1,90 @@
-<?php
+<html>
+	<head>
+		<style>
+			html, body {
+				margin: 0;
+				font-family: helvetica, sans-serif;
+			}
+			.left {
+				float: left;
+				padding: 0 0.2em 0 0.2em;
+			}
 
-/** Gets the frequency of a word occuring in a text file
- * @var file string the file name and path to be used
- * @var caseSensitive bool should the count be case sensitive
- * @var alphaNumericOnly bool should the count allow only alphanumeric chars
- * @return array (word=>no. occurances)
- */
-function GetWordFrequency($file, $caseSensitive=false, $alphaNumericOnly = true)
-{
-	// Get the file contents and store it as a string
-	$strFileContents = file_get_contents($file, 'r');
-	
-	// Check to see if we're using a case sensitive check
-	if(!$caseSensitive)
-	{
-		// if case insensitve, convert the string to lowercase
-		$strFileContents = strtolower($strFileContents);
-	}
-	
-	if($alphaNumericOnly)
-	{
-		//Allow alphanumberic and spaces only.
-		$strFileContents = ereg_replace("[^A-Za-z0-9 ]", "", $strFileContents );
-	}
+			table {
+				color:#666;
+				text-shadow: 1px 1px 0px #fff;
+				background:#eaebec;
+				margin:20px;
+				border:#ccc 1px solid;
 
-  
-	// Count the number of words in the file and convert to an array
-	// Note: use the word as the KEY so we can ksort later
-	$arrWords = str_word_count($strFileContents, 1);
-	
-	
-	// Get the frequency of each word in the array
-	$arrFrequency = array_count_values($arrWords);
-	
-	// Now use the ever useful ksort to organise by key value
-	ksort($arrFrequency);
-	
-	// Return sorted data as an array so it can be formatted later...
-	return $arrFrequency;
-}
-
-$arr_words = GetWordFrequency("README.md");
-?>
-<h1>Example output</h1>
-<pre>
-<?php print_r($arr_words); ?>
-</pre>
+				-moz-border-radius:3px;
+				-webkit-border-radius:3px;
+				border-radius:3px;
+			
+				-moz-box-shadow: 0 1px 2px #d1d1d1;
+				-webkit-box-shadow: 0 1px 2px #d1d1d1;
+				box-shadow: 0 1px 2px #d1d1d1;
+			}
+			table th {
+				padding: 2em;
+				background: #ededed;
+			}
+			h2 {
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<?php
+			// Include the file with the function in it.
+			include('getWordFrequency.php');
+			
+			// Get a selection of arrays with various options from the function
+			$arr_words = GetWordFrequency("README.md");
+			$arr_words_case_sensitive = GetWordFrequency("README.md", true);
+			$arr_words_alpha_numeric = GetWordFrequency("README.md", false, false);
+			$arr_words_everything = GetWordFrequency("README.md", true, false);
+			
+			function arrayToList( $array ) 
+			{
+				$output = "<!-- table heading -->
+				<table>
+					<thead>
+						<tr>
+							<th>Word/Character</th>
+     						<th>Frequency</th>
+  						</tr>
+ 					</thead>
+ 				";
+				foreach ( $array as $word => $frequency )
+				{
+					$output .= "<tr><td>$word</td><td>$frequency</td></tr>";
+				}
+				$output .= "</table>";
+				
+				return $output;
+			}
+		?>
+		<h1>Example outputs</h1>
+		
+		<div class="left">
+			<h2>Default Paramiters</h2>
+			<?php echo arrayToList( $arr_words ); ?>
+		</div>
+		
+		<div class="left">
+			<h2>Case Sensitive</h2>
+			<?php echo arrayToList( $arr_words_case_sensitive ); ?>
+		</div>
+		
+		<div class="left">
+			<h2>Include all characters/words</h2>
+			<?php echo arrayToList($arr_words_alpha_numeric); ?>
+		</div>
+		
+		<div class="left">
+			<h2>Case Sensitive and non-alpha numeric</h2>
+			<?php echo arrayToList($arr_words_everything); ?>
+		</div>
+	</body>
+</html>
